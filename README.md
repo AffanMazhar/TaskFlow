@@ -31,10 +31,11 @@ A polished personal-productivity web app built with Flask. Plan your day, organi
 python3 --version
 ```
 
-### 2. From inside the project folder, create & activate a virtual environment
+### 2. Clone the repo, then create & activate a virtual environment
 
 ```bash
-cd My_Flask_App
+git clone https://github.com/AffanMazhar/TaskFlow.git
+cd TaskFlow
 
 # macOS / Linux
 python3 -m venv env

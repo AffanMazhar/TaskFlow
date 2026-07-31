@@ -45,7 +45,6 @@ function Landing({ go }) {
         <div className="tf-nav__links">
           <a className="tf-nav__link" href="#features">Features</a>
           <a className="tf-nav__link" href="#workflow">Workflow</a>
-          <a className="tf-nav__link" href="#pricing">Pricing</a>
           <a className="tf-nav__link" href="#changelog">Changelog</a>
         </div>
         <div style={{ display: "flex", gap: 8, paddingLeft: 8, borderLeft: "1px solid var(--line-1)" }}>
@@ -328,51 +327,6 @@ function Landing({ go }) {
 
       <hr className="tf-divider" />
 
-      {/* pricing */}
-      <section className="tf-section" id="pricing">
-        <div className="tf-section__eyebrow">Pricing</div>
-        <h2 className="tf-section__title">Free for personal use. Generous for teams.</h2>
-        <p className="tf-section__sub">No trials, no card up front. Upgrade when you actually need the team features.</p>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginTop: 48 }}>
-          {[
-            { name: "Personal", price: "$0", tag: "forever", body: "Unlimited tasks, boards, and calendars. Full command palette. Streaks. Light + dark themes.", cta: "Start free", featured: false, features: ["Unlimited personal tasks", "Kanban + calendar views", "Streaks & dashboard", "Local export anytime"] },
-            { name: "Pro",      price: "$6",  tag: "/month", body: "For the maker who lives in TaskFlow. AI plan-of-the-day, priority sync, custom shortcuts.", cta: "Go Pro", featured: true,  features: ["Everything in Personal", "AI plan of the day", "Custom themes & shortcuts", "Priority email support"] },
-            { name: "Team",     price: "$10", tag: "/seat / mo", body: "Shared boards, comments, and roles. Built for studios and small product teams.", cta: "Start a team", featured: false, features: ["Everything in Pro", "Shared boards & comments", "Roles & permissions", "SSO via SAML"] },
-          ].map((p) => (
-            <SpotlightCard key={p.name} className="tf-glass" style={{
-              padding: 26, borderRadius: 20,
-              border: p.featured ? "1px solid rgba(139,92,246,0.5)" : "1px solid var(--line-2)",
-              background: p.featured ? "linear-gradient(180deg, rgba(139,92,246,0.10), rgba(15,15,30,0.6))" : undefined,
-              position: "relative",
-            }}>
-              {p.featured && (
-                <span style={{ position: "absolute", top: 14, right: 14, fontSize: 10, fontWeight: 600, color: "var(--acc-2)", letterSpacing: "0.12em", textTransform: "uppercase" }}>Most popular</span>
-              )}
-              <div style={{ fontSize: 12, color: "var(--fg-3)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8 }}>{p.name}</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
-                <span style={{ fontSize: 38, fontWeight: 600, letterSpacing: "-0.03em" }}>{p.price}</span>
-                <span style={{ fontSize: 13, color: "var(--fg-4)" }}>{p.tag}</span>
-              </div>
-              <p style={{ fontSize: 13, color: "var(--fg-3)", margin: "0 0 18px", lineHeight: 1.5 }}>{p.body}</p>
-              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 22px", display: "flex", flexDirection: "column", gap: 8 }}>
-                {p.features.map(f => (
-                  <li key={f} style={{ display: "flex", gap: 8, fontSize: 13, color: "var(--fg-2)" }}>
-                    <Icon name="check" size={14} stroke={2.5} style={{ color: "var(--acc-2)", flexShrink: 0, marginTop: 2 }} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <MagneticButton className={p.featured ? "tf-cta" : "tf-ghost"} onClick={() => go(p.featured ? "onboarding" : "register")} style={{ width: "100%", justifyContent: "center" }}>
-                {p.cta}
-              </MagneticButton>
-            </SpotlightCard>
-          ))}
-        </div>
-      </section>
-
-      <hr className="tf-divider" />
-
       {/* changelog */}
       <section className="tf-section" id="changelog">
         <div className="tf-section__eyebrow">Changelog</div>
@@ -383,7 +337,6 @@ function Landing({ go }) {
           {[
             { v: "v3.0", date: "May 16, 2026", tag: "Major", title: "Calendar + Today + Inbox views", body: "Three new ways to slice your tasks. Calendar lights up days that have deadlines; Today filters to what matters now; Inbox surfaces anything you captured without a date." },
             { v: "v2.8", date: "Apr 30, 2026", tag: "Themes", title: "Light theme + system preference", body: "Toggle in Settings → Appearance, or hit ⌘⇧L from anywhere. The light theme inherits the same accent palette." },
-            { v: "v2.7", date: "Apr 18, 2026", tag: "Auth",   title: "Sign in with Google & GitHub", body: "OAuth login alongside the classic username/password. Existing accounts can link a provider from Settings." },
             { v: "v2.6", date: "Apr 04, 2026", tag: "Polish", title: "Smoother drag & better empty states", body: "Drop targets pulse instead of jump, and every list has a friendly empty state with a keyboard hint." },
           ].map((e) => (
             <SpotlightCard key={e.v} className="tf-glass" style={{ padding: 22, borderRadius: 16, display: "grid", gridTemplateColumns: "120px 1fr", gap: 24 }}>
@@ -428,7 +381,6 @@ function Landing({ go }) {
           <Logo size={22} textSize={14} />
           <div style={{ display: "flex", gap: 22, fontSize: 13, color: "var(--fg-3)" }}>
             <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
             <a href="#changelog">Changelog</a>
             <button onClick={() => go("login")} style={{ color: "inherit" }}>Sign in</button>
           </div>

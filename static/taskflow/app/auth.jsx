@@ -5,11 +5,6 @@ function Login({ go }) {
   const [p, setP] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [err, setErr] = React.useState("");
-  const [providers, setProviders] = React.useState({});
-
-  React.useEffect(() => {
-    window.api.oauthProviders().then(r => setProviders(r.providers || {})).catch(() => {});
-  }, []);
 
   async function submit(e) {
     e.preventDefault();
@@ -87,24 +82,6 @@ function Login({ go }) {
               }
             </MagneticButton>
           </form>
-
-          <div className="tf-divider-h">or continue with</div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <a className="tf-ghost" href={providers.google?.start_url || "/login/google"} style={{ justifyContent: "center", textDecoration: "none", opacity: providers.google && !providers.google.enabled ? 0.7 : 1 }} title={providers.google && !providers.google.enabled ? "Google sign-in needs to be configured — click for setup steps" : "Continue with Google"}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 12.2c0-.7-.06-1.4-.2-2H12v3.8h5.4c-.2 1.2-.94 2.2-2 2.9v2.4h3.2c1.9-1.7 3-4.3 3-7.1z" fill="#4285f4" /><path d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.4c-.9.6-2 .9-3.4.9-2.6 0-4.8-1.7-5.6-4.1H3.1v2.5C4.7 19.7 8.1 22 12 22z" fill="#34a853" /><path d="M6.4 14c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.5H3.1C2.4 8.9 2 10.4 2 12s.4 3.1 1.1 4.5L6.4 14z" fill="#fbbc05" /><path d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.8-2.8C16.9 2.9 14.7 2 12 2 8.1 2 4.7 4.3 3.1 7.5L6.4 10c.8-2.4 3-4.1 5.6-4.1z" fill="#ea4335" /></svg>
-              Google
-            </a>
-            <a className="tf-ghost" href={providers.github?.start_url || "/login/github"} style={{ justifyContent: "center", textDecoration: "none", opacity: providers.github && !providers.github.enabled ? 0.7 : 1 }} title={providers.github && !providers.github.enabled ? "GitHub sign-in needs to be configured — click for setup steps" : "Continue with GitHub"}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.7.1-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.7-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.3v3.4c0 .3.2.7.8.6A12 12 0 0 0 12 .3z" /></svg>
-              GitHub
-            </a>
-          </div>
-          {(providers.google && !providers.google.enabled) || (providers.github && !providers.github.enabled) ? (
-            <p style={{ marginTop: 10, fontSize: 11, color: "var(--fg-4)", textAlign: "center" }}>
-              OAuth providers without API keys show setup instructions instead of signing in.
-            </p>
-          ) : null}
 
           <p style={{ marginTop: 28, fontSize: 13, color: "var(--fg-3)", textAlign: "center" }}>
             Don't have an account?{" "}
