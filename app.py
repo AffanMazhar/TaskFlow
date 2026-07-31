@@ -5,6 +5,7 @@ due dates, search & filter, calendar view, dashboard stats, daily-completion
 streak, customizable theme/accent/username, motivational quotes.
 """
 
+import os
 import random
 from datetime import datetime, timezone, date, timedelta
 from functools import wraps
@@ -17,8 +18,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "change-me-in-production"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+
+# In production SECRET_KEY must come from the environment — it signs the
+# session cookies, so a known value lets anyone forge a login. Falling back
+# to a fixed dev key keeps local runs zero-config.
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or "dev-only-not-for-production"
+
+# DATABASE_URL lets a host point at Postgres; otherwise SQLite in instance/.
+# (SQLAlchemy 2 dropped the legacy "postgres://" scheme some hosts still emit.)
+_db_url = os.environ.get("DATABASE_URL", "sqlite:///database.db")
+if _db_url.startswith("postgres://"):
+    _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = _db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
@@ -1179,8 +1190,14 @@ def not_found(_):
 
 # ── Entrypoint ────────────────────────────────────────────────────
 
+# Runs on import, not just under `python app.py`, so that a WSGI server
+# (gunicorn) also gets its tables created and schema migrated on boot.
+with app.app_context():
+    db.create_all()
+    _ensure_schema()
+
+
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-        _ensure_schema()
-    app.run(debug=True, host="127.0.0.1", port=5004)
+    # Local development only. In production gunicorn imports `app` directly
+    # and this block never runs — so debug can never be on in the deployment.
+    app.run(debug=True, host="127.0.0.1", port=int(os.environ.get("PORT", 5004)))

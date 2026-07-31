@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: taskflow
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      # Generated once by Render and kept stable across deploys, so
+      # existing sessions survive a redeploy.
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.13.9"
+    disk:
+      # SQLite lives here. Without a disk, Render's filesystem resets on
+      # every deploy and all users and tasks would be lost.
+      name: taskflow-data
+      mountPath: /opt/render/project/src/instance
+      sizeGB: 1
