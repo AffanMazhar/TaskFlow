@@ -39,11 +39,11 @@ function Onboarding({ go }) {
             <Icon name="chevronLeft" size={14} /> Back
           </button>
           <div style={{ display: "flex", gap: 10 }}>
-            {step === 0 && (
-              <button className="tf-nav__link" onClick={() => go("landing")} style={{ fontSize: 13 }}>
-                Cancel
-              </button>
-            )}
+            {/* Available on every step, not just the first — otherwise there's
+                no way out of the flow once you've started it. */}
+            <button className="tf-nav__link" onClick={() => go("landing")} style={{ fontSize: 13 }}>
+              Back to home
+            </button>
             <MagneticButton className="tf-cta" onClick={next}>
               {step === total - 1 ? "Enter TaskFlow" : "Continue"}
               <Icon name="arrowRight" size={14} />

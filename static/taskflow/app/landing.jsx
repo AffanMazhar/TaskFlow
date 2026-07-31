@@ -335,6 +335,9 @@ function Landing({ go }) {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 40 }}>
           {[
+            { v: "v3.3", date: "Jul 31, 2026", tag: "Polish", title: "Cleaner sign-out and onboarding", body: "Signing out now returns you to the home page instead of a bare login form, and every onboarding step has a way back home. Sign-out from the command palette actually ends your session — previously it only navigated away." },
+            { v: "v3.2", date: "Jul 31, 2026", tag: "Auth",   title: "Accounts are username & password only", body: "Removed third-party sign-in. Creating an account and signing in now use a single form, with no external provider involved." },
+            { v: "v3.1", date: "Jul 31, 2026", tag: "Major",  title: "TaskFlow is live", body: "Deployed to the web on a managed host, with data kept in Postgres so nothing is lost between releases." },
             { v: "v3.0", date: "May 16, 2026", tag: "Major", title: "Calendar + Today + Inbox views", body: "Three new ways to slice your tasks. Calendar lights up days that have deadlines; Today filters to what matters now; Inbox surfaces anything you captured without a date." },
             { v: "v2.8", date: "Apr 30, 2026", tag: "Themes", title: "Light theme + system preference", body: "Toggle in Settings → Appearance, or hit ⌘⇧L from anywhere. The light theme inherits the same accent palette." },
             { v: "v2.6", date: "Apr 04, 2026", tag: "Polish", title: "Smoother drag & better empty states", body: "Drop targets pulse instead of jump, and every list has a friendly empty state with a keyboard hint." },

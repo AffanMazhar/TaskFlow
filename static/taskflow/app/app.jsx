@@ -291,7 +291,9 @@ function Sidebar({ screen, go, openCmd }) {
       </button>
       <button className="tf-side__item" onClick={async () => {
         try { await window.api.logout(); } catch (_) {}
-        window.location.href = "/login";
+        // "/" re-enters the app at the landing page. A full reload (rather
+        // than go("landing")) also clears the signed-in task state.
+        window.location.href = "/";
       }}>
         <Icon name="arrowRight" size={14} style={{ transform: "rotate(180deg)" }} />
         Sign out
@@ -332,7 +334,11 @@ function CommandPalette({ go, close, tasks }) {
     { id: "go-settings",  label: "Go to settings",  icon: "cog",       kbd: "G S", run: () => go("settings") },
     { id: "new-task",     label: "Create new task", icon: "plus",      kbd: "N",   run: () => { go("tasks"); setTimeout(() => window.dispatchEvent(new CustomEvent("tf-new-task")), 250); } },
     { id: "go-landing",   label: "Open landing page", icon: "arrowRight", run: () => go("landing") },
-    { id: "sign-out",     label: "Sign out",        icon: "user",      run: () => go("landing") },
+    { id: "sign-out",     label: "Sign out",        icon: "user",      run: async () => {
+      // Previously this only navigated, leaving the session signed in.
+      try { await window.api.logout(); } catch (_) {}
+      window.location.href = "/";
+    } },
   ];
 
   const taskMatches = q.trim()
