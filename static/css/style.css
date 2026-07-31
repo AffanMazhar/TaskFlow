@@ -1,0 +1,379 @@
+/* =====================================================================
+   TaskFlow — design tokens, animations, components.
+   Tailwind handles utility classes; this file adds custom polish:
+   theme tokens, form controls, animations, modal, toast, calendar.
+   ===================================================================== */
+
+/* ── Accent color, switched by data-accent on <body> ─────────────── */
+body[data-accent="indigo"]  { --accent: 99 102 241;  --accent-hover: 79 70 229;   --accent-soft: 99 102 241; }
+body[data-accent="blue"]    { --accent: 59 130 246;  --accent-hover: 37 99 235;   --accent-soft: 59 130 246; }
+body[data-accent="violet"]  { --accent: 139 92 246;  --accent-hover: 124 58 237;  --accent-soft: 139 92 246; }
+body[data-accent="emerald"] { --accent: 16 185 129;  --accent-hover: 5 150 105;   --accent-soft: 16 185 129; }
+body[data-accent="rose"]    { --accent: 244 63 94;   --accent-hover: 225 29 72;   --accent-soft: 244 63 94; }
+body[data-accent="amber"]   { --accent: 245 158 11;  --accent-hover: 217 119 6;   --accent-soft: 245 158 11; }
+body[data-accent="slate"]   { --accent: 100 116 139; --accent-hover: 71 85 105;   --accent-soft: 100 116 139; }
+body[data-accent="teal"]    { --accent: 20 184 166;  --accent-hover: 13 148 136;  --accent-soft: 20 184 166; }
+body                        { --accent: 99 102 241;  --accent-hover: 79 70 229; }
+
+:root      { color-scheme: light; }
+html.dark  { color-scheme: dark; }
+
+/* ── Typography ──────────────────────────────────────────────────── */
+body {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+}
+
+/* Background gradient — subtle and unique, not flat zinc. */
+body:not(.compact) {
+  background-image:
+    radial-gradient(circle at 0% 0%, rgb(var(--accent) / 0.05) 0%, transparent 38%),
+    radial-gradient(circle at 100% 0%, rgb(var(--accent) / 0.04) 0%, transparent 30%);
+}
+html.dark body:not(.compact) {
+  background-image:
+    radial-gradient(circle at 0% 0%, rgb(var(--accent) / 0.10) 0%, transparent 38%),
+    radial-gradient(circle at 100% 0%, rgb(var(--accent) / 0.07) 0%, transparent 30%);
+}
+
+/* ── Selection & scrollbar ───────────────────────────────────────── */
+::selection { background-color: rgb(var(--accent) / .25); }
+
+::-webkit-scrollbar             { width: 10px; height: 10px; }
+::-webkit-scrollbar-track       { background: transparent; }
+::-webkit-scrollbar-thumb       { background: rgba(128,128,128,.22); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,.4); }
+
+/* ── Compact mode ────────────────────────────────────────────────── */
+body.compact .task-row             { padding-top: .5rem; padding-bottom: .5rem; }
+body.compact .task-row .task-desc  { display: none; }
+body.compact .stat-card            { padding: .875rem 1rem; }
+body.compact h1.page-title         { font-size: 1.125rem; }
+body.compact .page-subtitle        { display: none; }
+
+/* ── Form controls ───────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: .6rem .8rem;
+  font-size: .875rem;
+  line-height: 1.4;
+  border: 1px solid rgb(228 228 231);
+  background: #fff;
+  color: rgb(24 24 27);
+  border-radius: 8px;
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease, transform .16s ease;
+}
+.input::placeholder { color: rgb(161 161 170); }
+.input:hover { border-color: rgb(212 212 216); }
+.input:focus {
+  outline: none;
+  border-color: rgb(var(--accent));
+  box-shadow: 0 0 0 4px rgb(var(--accent) / .15);
+}
+html.dark .input {
+  background: rgb(24 24 27);
+  border-color: rgb(63 63 70);
+  color: rgb(244 244 245);
+}
+html.dark .input:hover { border-color: rgb(82 82 91); }
+html.dark .input::placeholder { color: rgb(113 113 122); }
+
+/* Native date picker icon legibility. */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(.35); opacity: .7; cursor: pointer;
+}
+html.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(.75); }
+
+/* ── Buttons — accent button with subtle press feedback ──────────── */
+.btn-accent {
+  background: rgb(var(--accent));
+  color: #fff;
+  transition: transform .12s ease, box-shadow .15s ease, background-color .15s ease;
+  box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 0 0 0 rgb(var(--accent) / .35);
+}
+.btn-accent:hover { background: rgb(var(--accent-hover)); box-shadow: 0 4px 14px rgb(var(--accent) / .35); }
+.btn-accent:active { transform: translateY(1px) scale(.99); }
+
+/* ── Cards ───────────────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border: 1px solid rgb(228 228 231);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgb(24 24 27 / .03);
+}
+html.dark .card {
+  background: rgb(24 24 27);
+  border-color: rgb(39 39 42);
+}
+
+/* ── Task card hover lift ────────────────────────────────────────── */
+.task-row {
+  position: relative;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .task-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px -8px rgb(0 0 0 / .15);
+    border-color: rgb(var(--accent) / .35);
+  }
+  html.dark .task-row:hover { box-shadow: 0 6px 20px -8px rgb(0 0 0 / .55); }
+}
+
+/* Color stripe on the left of a task row, tinted by accent. */
+.task-row::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 12%; bottom: 12%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: rgb(var(--accent) / .55);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+.task-row:hover::before { opacity: 1; }
+
+/* ── Category color chips (pill badges) ──────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .15rem .55rem;
+  font-size: .68rem;
+  font-weight: 600;
+  border-radius: 999px;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.chip-violet  { background: rgb(124 58 237 / .12); color: rgb(124 58 237); }
+.chip-blue    { background: rgb(37 99 235 / .12);  color: rgb(37 99 235); }
+.chip-emerald { background: rgb(5 150 105 / .12);  color: rgb(5 150 105); }
+.chip-amber   { background: rgb(217 119 6 / .14);  color: rgb(180 83 9); }
+.chip-rose    { background: rgb(225 29 72 / .12);  color: rgb(225 29 72); }
+.chip-slate   { background: rgb(100 116 139 / .14);color: rgb(71 85 105); }
+html.dark .chip-violet  { background: rgb(139 92 246 / .18); color: rgb(196 181 253); }
+html.dark .chip-blue    { background: rgb(59 130 246 / .18); color: rgb(147 197 253); }
+html.dark .chip-emerald { background: rgb(16 185 129 / .18); color: rgb(110 231 183); }
+html.dark .chip-amber   { background: rgb(245 158 11 / .18); color: rgb(252 211 77); }
+html.dark .chip-rose    { background: rgb(244 63 94 / .18);  color: rgb(253 164 175); }
+html.dark .chip-slate   { background: rgb(148 163 184 / .18);color: rgb(203 213 225); }
+
+/* ── Priority dot ────────────────────────────────────────────────── */
+.dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
+/* ── Toast notifications ─────────────────────────────────────────── */
+#toast-stack {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  min-width: 240px;
+  max-width: 360px;
+  background: #fff;
+  color: rgb(24 24 27);
+  border: 1px solid rgb(228 228 231);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px -10px rgb(0 0 0 / .25);
+  padding: .65rem .85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: .55rem;
+  font-size: .85rem;
+  animation: toastIn .3s cubic-bezier(.16,1,.3,1) both;
+}
+html.dark .toast {
+  background: rgb(24 24 27);
+  color: rgb(244 244 245);
+  border-color: rgb(63 63 70);
+  box-shadow: 0 10px 30px -10px rgb(0 0 0 / .6);
+}
+.toast.leaving { animation: toastOut .25s ease-in both; }
+.toast-icon {
+  width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-size: 11px; font-weight: 700; color: #fff;
+}
+.toast-success .toast-icon { background: rgb(16 185 129); }
+.toast-error   .toast-icon { background: rgb(244 63 94); }
+.toast-info    .toast-icon { background: rgb(100 116 139); }
+
+@keyframes toastIn  { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to   { opacity: 0; transform: translateY(6px); } }
+
+/* ── Confirmation modal ──────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgb(0 0 0 / .45);
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  animation: fadeIn .18s ease-out;
+}
+.modal-card {
+  width: 100%; max-width: 26rem;
+  background: #fff;
+  color: rgb(24 24 27);
+  border-radius: 16px;
+  border: 1px solid rgb(228 228 231);
+  padding: 1.25rem 1.25rem 1rem;
+  box-shadow: 0 20px 60px -20px rgb(0 0 0 / .35);
+  animation: modalIn .22s cubic-bezier(.16,1,.3,1);
+}
+html.dark .modal-card {
+  background: rgb(24 24 27);
+  color: rgb(244 244 245);
+  border-color: rgb(63 63 70);
+}
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalIn { from { opacity: 0; transform: translateY(6px) scale(.97); } to { opacity: 1; transform: none; } }
+
+/* ── Page / element animations ───────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .page-fadein { animation: pageFadeIn .28s cubic-bezier(.16,1,.3,1) both; }
+
+  @keyframes pageFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Staggered entrance for lists & form sections. */
+  .stagger > * { animation: stagItem .32s cubic-bezier(.16,1,.3,1) both; }
+  .stagger > *:nth-child(1) { animation-delay: .02s; }
+  .stagger > *:nth-child(2) { animation-delay: .06s; }
+  .stagger > *:nth-child(3) { animation-delay: .10s; }
+  .stagger > *:nth-child(4) { animation-delay: .14s; }
+  .stagger > *:nth-child(5) { animation-delay: .18s; }
+  .stagger > *:nth-child(6) { animation-delay: .22s; }
+  .stagger > *:nth-child(7) { animation-delay: .26s; }
+  .stagger > *:nth-child(8) { animation-delay: .30s; }
+
+  @keyframes stagItem {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Task completion micro-animation. */
+  .task-row.just-completed { animation: pulseDone .55s ease-out; }
+  @keyframes pulseDone {
+    0%   { background-color: rgb(16 185 129 / .15); }
+    100% { background-color: transparent; }
+  }
+  html.dark .task-row.just-completed { animation: pulseDoneDark .55s ease-out; }
+  @keyframes pulseDoneDark {
+    0%   { background-color: rgb(16 185 129 / .18); }
+    100% { background-color: transparent; }
+  }
+
+  /* Task removal micro-animation. */
+  .task-row.leaving { animation: leaveRow .25s ease-in both; }
+  @keyframes leaveRow {
+    to { opacity: 0; transform: translateX(-12px); max-height: 0; padding-top: 0; padding-bottom: 0; margin: 0; border-width: 0; }
+  }
+
+  /* Checkmark stroke animation. */
+  .check-pop { animation: checkPop .25s cubic-bezier(.16,1,.3,1); }
+  @keyframes checkPop {
+    0%   { transform: scale(.6); opacity: 0; }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+}
+
+/* ── Stats card subtle gradient ──────────────────────────────────── */
+.stat-card {
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -12px rgb(0 0 0 / .15);
+  border-color: rgb(var(--accent) / .4);
+}
+html.dark .stat-card:hover { box-shadow: 0 10px 25px -12px rgb(0 0 0 / .55); }
+
+/* ── Calendar grid ───────────────────────────────────────────────── */
+.cal-grid       { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal-head       { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em;
+                  color: rgb(113 113 122); padding: .4rem .5rem; font-weight: 600; }
+.cal-cell {
+  min-height: 90px;
+  border: 1px solid rgb(228 228 231);
+  border-radius: 10px;
+  padding: .35rem .45rem;
+  background: #fff;
+  transition: border-color .15s ease, transform .15s ease;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.cal-cell:hover { border-color: rgb(var(--accent) / .45); }
+.cal-cell-empty { border-style: dashed; background: transparent; }
+.cal-cell-today { border-color: rgb(var(--accent)); box-shadow: inset 0 0 0 1px rgb(var(--accent) / .6); }
+.cal-day-num    { font-size: .8rem; font-weight: 600; color: rgb(63 63 70); }
+.cal-cell-today .cal-day-num { color: rgb(var(--accent)); }
+.cal-pill {
+  font-size: .68rem;
+  padding: .12rem .4rem;
+  border-radius: 999px;
+  background: rgb(var(--accent) / .12);
+  color: rgb(var(--accent));
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.cal-pill:hover { background: rgb(var(--accent) / .2); }
+html.dark .cal-cell { background: rgb(24 24 27); border-color: rgb(39 39 42); }
+html.dark .cal-day-num { color: rgb(212 212 216); }
+html.dark .cal-pill { background: rgb(var(--accent) / .22); color: rgb(244 244 245); }
+
+@media (max-width: 640px) {
+  .cal-cell { min-height: 64px; }
+  .cal-pill { display: none; }
+}
+
+/* ── Progress bar ────────────────────────────────────────────────── */
+.progress {
+  height: 8px;
+  border-radius: 999px;
+  background: rgb(228 228 231);
+  overflow: hidden;
+}
+html.dark .progress { background: rgb(39 39 42); }
+.progress > span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, rgb(var(--accent)) 0%, rgb(var(--accent-hover)) 100%);
+  border-radius: 999px;
+  transition: width .6s cubic-bezier(.16,1,.3,1);
+}
+
+/* ── Streak badge ────────────────────────────────────────────────── */
+.streak-pill {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .25rem .65rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgb(245 158 11 / .15), rgb(244 63 94 / .15));
+  color: rgb(180 83 9);
+  font-size: .78rem; font-weight: 600;
+  border: 1px solid rgb(245 158 11 / .25);
+}
+html.dark .streak-pill {
+  color: rgb(252 211 77);
+  border-color: rgb(245 158 11 / .35);
+}
+
+/* ── Link helpers ────────────────────────────────────────────────── */
+a { transition: color .15s ease; }
+
+/* ── Focus ring polish ───────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+  border-radius: 6px;
+}

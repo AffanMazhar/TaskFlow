@@ -1,0 +1,24 @@
+{# Quick-add: title + category. Defaults to Personal/Medium. Posts back to caller. #}
+<form method="POST" action="{{ url_for('new_task') }}"
+      class="card mb-6 flex flex-col gap-2 p-2 sm:flex-row sm:items-center">
+  <input type="hidden" name="next" value="{{ request.path }}">
+  <div class="relative flex-1">
+    <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+         fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+    </svg>
+    <input type="text" name="content" required maxlength="100"
+           placeholder="What needs to be done?"
+           autocomplete="off"
+           class="input !border-transparent !bg-transparent !pl-9 focus:!border-accent">
+  </div>
+  <select name="category" class="input sm:max-w-[10rem]">
+    {% for c in categories %}
+      <option value="{{ c }}">{{ c }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit"
+          class="btn-accent rounded-lg px-4 py-2 text-sm font-semibold">
+    Add task
+  </button>
+</form>

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} &middot; TaskFlow{% endblock %}
+
+{% block body %}
+<a href="{{ url_for('task_detail', id=task.id) if task else url_for('tasks') }}"
+   class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+  <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  Back
+</a>
+
+<div class="mb-6">
+  <h1 class="page-title text-2xl font-bold tracking-tight">{{ page_title }}</h1>
+  <p class="page-subtitle mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+    {% if task %}Update the details below.{% else %}Capture something you need to get done.{% endif %}
+  </p>
+</div>
+
+<div class="card p-6">
+  <form method="POST" action="{{ form_action }}" class="stagger space-y-5">
+
+    <div>
+      <label for="content" class="mb-1.5 block text-sm font-semibold">Title</label>
+      <input type="text" id="content" name="content" required maxlength="100"
+             value="{{ task.content if task else '' }}"
+             class="input" autofocus
+             placeholder="e.g. Finish the math homework">
+    </div>
+
+    <div>
+      <label for="description" class="mb-1.5 block text-sm font-semibold">
+        Notes <span class="font-normal text-zinc-400 dark:text-zinc-500">(optional)</span>
+      </label>
+      <textarea id="description" name="description" rows="4" class="input"
+                placeholder="Add any extra detail you'd want to remember…">{{ task.description if task and task.description else '' }}</textarea>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-3">
+      <div>
+        <label for="category" class="mb-1.5 block text-sm font-semibold">Category</label>
+        <select id="category" name="category" class="input">
+          {% for c in categories %}
+            <option value="{{ c }}" {{ 'selected' if (task and task.category == c) or (not task and c == 'Personal') }}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="priority" class="mb-1.5 block text-sm font-semibold">Priority</label>
+        <select id="priority" name="priority" class="input">
+          <option value="low"    {{ 'selected' if task and task.priority == 'low' }}>Low</option>
+          <option value="medium" {{ 'selected' if (task and task.priority == 'medium') or not task }}>Medium</option>
+          <option value="high"   {{ 'selected' if task and task.priority == 'high' }}>High</option>
+        </select>
+      </div>
+      <div>
+        <label for="due_date" class="mb-1.5 block text-sm font-semibold">Due date</label>
+        <input type="datetime-local" id="due_date" name="due_date"
+               value="{{ due_date_str }}" class="input">
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-2 border-t border-zinc-200 pt-5 dark:border-zinc-800">
+      <a href="{{ url_for('task_detail', id=task.id) if task else url_for('tasks') }}"
+         class="rounded-lg px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">
+        Cancel
+      </a>
+      <button type="submit" class="btn-accent rounded-lg px-4 py-2 text-sm font-semibold">
+        {{ 'Save changes' if task else 'Create task' }}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

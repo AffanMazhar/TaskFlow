@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}{{ heading }} &middot; TaskFlow{% endblock %}
+
+{% block body %}
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h1 class="page-title text-2xl font-bold tracking-tight">{{ heading }}</h1>
+    <p class="page-subtitle mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+      {{ tasks|length }} task{{ 's' if tasks|length != 1 else '' }} &middot; {{ subtitle }}
+    </p>
+  </div>
+  <a href="{{ url_for('new_task') }}"
+     class="btn-accent inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold">
+    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+    New task
+  </a>
+</div>
+
+{# ── Search & filters ──────────────────────────────────────────── #}
+{% if show_filters %}
+  <form method="GET" data-filter class="card mb-5 grid gap-2 p-3 sm:grid-cols-[1fr_auto_auto_auto_auto]">
+    <div class="relative">
+      <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+      <input type="text" name="q" value="{{ request.args.get('q','') }}"
+             placeholder="Search tasks…"
+             class="input !border-transparent !bg-transparent !pl-9 focus:!border-accent">
+    </div>
+    <select name="category" class="input">
+      <option value="">All categories</option>
+      {% for c in categories %}
+        <option value="{{ c }}" {{ 'selected' if request.args.get('category') == c }}>{{ c }}</option>
+      {% endfor %}
+    </select>
+    <select name="priority" class="input">
+      <option value="">All priorities</option>
+      <option value="high"   {{ 'selected' if request.args.get('priority') == 'high'   }}>High</option>
+      <option value="medium" {{ 'selected' if request.args.get('priority') == 'medium' }}>Medium</option>
+      <option value="low"    {{ 'selected' if request.args.get('priority') == 'low'    }}>Low</option>
+    </select>
+    {% if view == 'all' %}
+      <select name="status" class="input">
+        <option value="">All</option>
+        <option value="open" {{ 'selected' if request.args.get('status') == 'open' }}>Open</option>
+        <option value="done" {{ 'selected' if request.args.get('status') == 'done' }}>Done</option>
+      </select>
+    {% endif %}
+    <button type="submit" class="btn-accent rounded-lg px-3 py-2 text-sm font-semibold">Search</button>
+  </form>
+{% endif %}
+
+{% if tasks %}
+  <div class="stagger space-y-2">
+    {% for task in tasks %}
+      {% include 'partials/_task_card.html' %}
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="rounded-xl border-2 border-dashed border-zinc-300 bg-white/50 p-12 text-center dark:border-zinc-700 dark:bg-zinc-900/50">
+    <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-accent">
+      {% if view == 'completed' %}
+        <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      {% else %}
+        <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8" stroke-linecap="round"/></svg>
+      {% endif %}
+    </div>
+    {% if request.args.get('q') or request.args.get('category') or request.args.get('priority') or request.args.get('status') %}
+      <p class="text-base font-semibold">No tasks match those filters</p>
+      <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Try clearing search or picking a different category.</p>
+      <a href="{{ request.path }}" class="mt-4 inline-flex text-sm font-medium text-accent hover:underline">Clear filters</a>
+    {% elif view == 'all' %}
+      <p class="text-base font-semibold">Nothing here yet</p>
+      <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Create your first task to get started.</p>
+      <a href="{{ url_for('new_task') }}"
+         class="btn-accent mt-4 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold">
+        New task
+      </a>
+    {% elif view == 'inprogress' %}
+      <p class="text-base font-semibold">All caught up ✨</p>
+      <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">No open tasks right now. Enjoy the calm.</p>
+    {% else %}
+      <p class="text-base font-semibold">No completed tasks yet</p>
+      <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Mark something done and it'll land here.</p>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

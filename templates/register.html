@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Create account &middot; TaskFlow{% endblock %}
+
+{% block body_public %}
+<div class="w-full max-w-sm">
+  <div class="mb-6 text-center">
+    <div class="inline-flex items-center gap-2">
+      <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-white shadow-[0_4px_12px_-4px_rgb(var(--accent))]">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <p class="text-lg font-bold tracking-tight">TaskFlow</p>
+    </div>
+  </div>
+
+  <div class="card p-6 sm:p-7">
+    <h1 class="text-lg font-bold">Create your account</h1>
+    <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Takes about ten seconds.</p>
+
+    <form method="POST" action="{{ url_for('register') }}" class="mt-6 space-y-4">
+      <div>
+        <label for="username" class="mb-1.5 block text-sm font-semibold">Username</label>
+        <input type="text" name="username" id="username" required minlength="3" maxlength="50" autocomplete="username" class="input"
+               placeholder="What should we call you?">
+        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">3–50 characters. Shown on your dashboard.</p>
+      </div>
+      <div>
+        <label for="email" class="mb-1.5 block text-sm font-semibold">Email</label>
+        <input type="email" name="email" id="email" required autocomplete="email" class="input"
+               placeholder="you@example.com">
+      </div>
+      <div>
+        <label for="password" class="mb-1.5 block text-sm font-semibold">Password</label>
+        <input type="password" name="password" id="password" required minlength="6" autocomplete="new-password" class="input">
+        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">At least 6 characters.</p>
+      </div>
+      <button type="submit" class="btn-accent w-full rounded-lg px-3 py-2.5 text-sm font-semibold">
+        Create account
+      </button>
+    </form>
+  </div>
+
+  <p class="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+    Already have an account?
+    <a href="{{ url_for('login') }}" class="font-semibold text-accent hover:underline">Sign in</a>
+  </p>
+</div>
+{% endblock %}

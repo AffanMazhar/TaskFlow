@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard &middot; TaskFlow{% endblock %}
+
+{% block body %}
+{# Time-of-day greeting. #}
+{% set hour = (current_year and 0) %}{# placeholder; real logic below #}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h1 class="page-title text-2xl font-bold tracking-tight sm:text-3xl">
+      Hi, {{ current_user.display_name }} 👋
+    </h1>
+    <p class="page-subtitle mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+      {% if total == 0 %}
+        Let's set up your first task and get the day started.
+      {% elif pending == 0 %}
+        You're all caught up — nice work.
+      {% else %}
+        You have <span class="font-semibold text-zinc-900 dark:text-zinc-100">{{ pending }}</span> task{{ 's' if pending != 1 else '' }} left for today.
+      {% endif %}
+    </p>
+  </div>
+  {% if streak > 0 %}
+    <div class="streak-pill" title="Days in a row with at least one completed task">
+      <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 0c.83 2.5-1 4-2 5.5-1.5 2.5-1.5 5 1 7-.5-3 1-4.5 2.5-6S17 3 13.5 0zM8 8c-.5 2-2 3.5-2 6 0 3.31 2.69 6 6 6s6-2.69 6-6c0-2-.5-3.5-1.5-5-1 1-2 1.5-3 1.5-1.5 0-1.5-2-1-3.5-1.5.5-3 2-4.5 1z"/></svg>
+      {{ streak }}-day streak
+    </div>
+  {% endif %}
+</div>
+
+{# ── Motivational quote ─────────────────────────────────────────── #}
+<div class="card mb-6 flex items-start gap-3 p-4 sm:p-5">
+  <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 7H6a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h2v2a4 4 0 0 1-4 4v2a6 6 0 0 0 6-6V9a2 2 0 0 0-1-2zm10 0h-3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h2v2a4 4 0 0 1-4 4v2a6 6 0 0 0 6-6V9a2 2 0 0 0-1-2z"/></svg>
+  </span>
+  <div class="min-w-0">
+    <p class="text-sm italic text-zinc-700 dark:text-zinc-200">&ldquo;{{ quote_text }}&rdquo;</p>
+    <p class="mt-1 text-xs font-medium text-zinc-500 dark:text-zinc-400">— {{ quote_author }}</p>
+  </div>
+</div>
+
+{# ── Stats cards ────────────────────────────────────────────────── #}
+<div class="stagger mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+  <a href="{{ url_for('tasks') }}"
+     class="stat-card block rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Total</p>
+    <p class="mt-1.5 text-3xl font-bold tracking-tight">{{ total }}</p>
+  </a>
+
+  <a href="{{ url_for('inprogress') }}"
+     class="stat-card block rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">In progress</p>
+    <p class="mt-1.5 text-3xl font-bold tracking-tight text-accent">{{ pending }}</p>
+  </a>
+
+  <a href="{{ url_for('completed') }}"
+     class="stat-card block rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Completed</p>
+    <p class="mt-1.5 text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">{{ done }}</p>
+  </a>
+
+  <a href="{{ url_for('inprogress') }}"
+     class="stat-card block rounded-xl border p-4
+            {% if overdue_count > 0 %}border-rose-200 bg-rose-50 dark:border-rose-900/40 dark:bg-rose-950/30
+            {% else %}border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900{% endif %}">
+    <p class="text-xs font-semibold uppercase tracking-wider {% if overdue_count > 0 %}text-rose-600 dark:text-rose-400{% else %}text-zinc-500 dark:text-zinc-400{% endif %}">Overdue</p>
+    <p class="mt-1.5 text-3xl font-bold tracking-tight {% if overdue_count > 0 %}text-rose-700 dark:text-rose-300{% endif %}">{{ overdue_count }}</p>
+  </a>
+</div>
+
+{# ── Progress bar ───────────────────────────────────────────────── #}
+{% if total > 0 %}
+  <div class="card mb-6 p-4 sm:p-5">
+    <div class="mb-2 flex items-center justify-between text-sm">
+      <span class="font-semibold">Today's progress</span>
+      <span class="font-mono text-xs text-zinc-500 dark:text-zinc-400">{{ done }} / {{ total }} · {{ completion_pct }}%</span>
+    </div>
+    <div class="progress"><span style="width: {{ completion_pct }}%"></span></div>
+  </div>
+{% endif %}
+
+{# ── Quick add ──────────────────────────────────────────────────── #}
+{% include 'partials/_quick_add.html' %}
+
+<div class="mb-3 flex items-center justify-between">
+  <h2 class="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Recent tasks</h2>
+  <a href="{{ url_for('tasks') }}" class="text-sm font-medium text-accent hover:underline">View all →</a>
+</div>
+
+{% if recent %}
+  <div class="stagger space-y-2">
+    {% for task in recent %}
+      {% include 'partials/_task_card.html' %}
+    {% endfor %}
+  </div>
+{% else %}
+  {# Friendly empty state. #}
+  <div class="rounded-xl border-2 border-dashed border-zinc-300 bg-white/50 p-10 text-center dark:border-zinc-700 dark:bg-zinc-900/50">
+    <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 text-accent">
+      <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="text-base font-semibold">A clean slate</p>
+    <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Use the quick-add above to capture your first task.</p>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Sign in &middot; TaskFlow{% endblock %}
+
+{% block body_public %}
+<div class="grid w-full max-w-5xl gap-10 lg:grid-cols-2 lg:items-center">
+
+  {# ── Marketing pane (desktop only) ───────────────────────────── #}
+  <div class="hidden lg:block">
+    <div class="inline-flex items-center gap-2">
+      <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-accent text-white shadow-[0_4px_20px_-4px_rgb(var(--accent))]">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="text-xl font-bold tracking-tight">TaskFlow</span>
+    </div>
+    <h1 class="mt-6 text-4xl font-extrabold tracking-tight">
+      Your personal productivity assistant.
+    </h1>
+    <p class="mt-3 max-w-md text-base text-zinc-600 dark:text-zinc-400">
+      Organize tasks by category, track daily streaks, and stay on top of what matters — all in one clean, modern workspace.
+    </p>
+    <ul class="mt-6 space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+      <li class="flex items-center gap-2">
+        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round"/></svg>
+        </span>
+        Categories, priorities & due dates
+      </li>
+      <li class="flex items-center gap-2">
+        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round"/></svg>
+        </span>
+        Daily completion streaks
+      </li>
+      <li class="flex items-center gap-2">
+        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round"/></svg>
+        </span>
+        Customizable theme &amp; accent color
+      </li>
+    </ul>
+  </div>
+
+  {# ── Sign-in card ────────────────────────────────────────────── #}
+  <div class="w-full max-w-sm justify-self-center lg:justify-self-end">
+    <div class="mb-6 text-center lg:hidden">
+      <div class="inline-flex items-center gap-2">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-white shadow-[0_4px_12px_-4px_rgb(var(--accent))]">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <p class="text-lg font-bold tracking-tight">TaskFlow</p>
+      </div>
+    </div>
+
+    <div class="card p-6 sm:p-7">
+      <h1 class="text-lg font-bold">Welcome back</h1>
+      <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Sign in to continue.</p>
+
+      <form method="POST" action="{{ url_for('login') }}" class="mt-6 space-y-4">
+        <div>
+          <label for="username" class="mb-1.5 block text-sm font-semibold">Username</label>
+          <input type="text" name="username" id="username" required autocomplete="username" class="input">
+        </div>
+        <div>
+          <label for="password" class="mb-1.5 block text-sm font-semibold">Password</label>
+          <input type="password" name="password" id="password" required autocomplete="current-password" class="input">
+        </div>
+        <button type="submit" class="btn-accent w-full rounded-lg px-3 py-2.5 text-sm font-semibold">
+          Sign in
+        </button>
+      </form>
+    </div>
+
+    <p class="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+      New here?
+      <a href="{{ url_for('register') }}" class="font-semibold text-accent hover:underline">Create an account</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

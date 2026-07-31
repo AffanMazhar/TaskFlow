@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en"
+      data-theme="{{ user_settings.theme if user_settings else 'system' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#6366f1">
+  <title>{% block title %}TaskFlow — your personal productivity assistant{% endblock %}</title>
+
+  {# Apply dark class before paint to avoid flash of wrong theme. #}
+  <script>
+    (function () {
+      var t = document.documentElement.getAttribute("data-theme") || "system";
+      var dark = t === "dark" ||
+                 (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+      if (dark) document.documentElement.classList.add("dark");
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Inter", "system-ui", "sans-serif"] },
+          colors: {
+            accent: {
+              DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+              hover:   "rgb(var(--accent-hover) / <alpha-value>)",
+            },
+          },
+          boxShadow: {
+            'soft': '0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body data-accent="{{ user_settings.accent if user_settings else 'indigo' }}"
+      class="font-sans antialiased bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 {{ 'compact' if user_settings and user_settings.compact_mode else '' }}">
+
+  {% if current_user %}
+    <div class="flex min-h-screen">
+
+      {# Mobile backdrop #}
+      <div id="sidebar-backdrop"
+           class="fixed inset-0 z-30 hidden bg-black/40 lg:hidden"></div>
+
+      {% include 'partials/_sidebar.html' %}
+
+      <div class="flex flex-1 flex-col min-w-0">
+        {# Mobile-only header bar #}
+        <div class="sticky top-0 z-20 flex items-center gap-3 border-b border-zinc-200 bg-zinc-50/80 px-4 py-2.5 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80 lg:hidden">
+          <button id="sidebar-open"
+                  class="-ml-1 rounded-md p-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                  aria-label="Open menu">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
+          </button>
+          <a href="{{ url_for('index') }}" class="flex items-center gap-2 text-sm font-bold tracking-tight">
+            <span class="inline-block h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_10px_rgb(var(--accent))]"></span>
+            TaskFlow
+          </a>
+        </div>
+
+        {% include 'partials/_flash.html' %}
+
+        <main class="flex-1">
+          <div class="page-fadein mx-auto max-w-5xl px-5 py-8 sm:px-8">
+            {% block body %}{% endblock %}
+          </div>
+        </main>
+
+        <footer class="border-t border-zinc-200 dark:border-zinc-800">
+          <div class="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-5 py-5 text-xs text-zinc-500 sm:flex-row sm:px-8 dark:text-zinc-500">
+            <p class="flex items-center gap-2">
+              <span class="inline-block h-1.5 w-1.5 rounded-full bg-accent"></span>
+              TaskFlow
+            </p>
+            <p>&copy; {{ current_year }} &middot; your personal productivity assistant</p>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+  {% else %}
+    {% include 'partials/_flash.html' %}
+    <div class="flex min-h-screen flex-col">
+      <main class="page-fadein flex flex-1 items-center justify-center px-4 py-12">
+        {% block body_public %}{% endblock %}
+      </main>
+      <footer class="border-t border-zinc-200 py-4 text-center text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-500">
+        TaskFlow &middot; &copy; {{ current_year }}
+      </footer>
+    </div>
+  {% endif %}
+
+  <div id="toast-stack"></div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</body>
+</html>

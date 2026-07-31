@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block title %}Settings &middot; TaskFlow{% endblock %}
+
+{# Hex values for accent swatches — kept in template only for visual rendering. #}
+{% set accent_hex = {
+    'indigo':  '#6366f1',
+    'blue':    '#3b82f6',
+    'violet':  '#8b5cf6',
+    'emerald': '#10b981',
+    'rose':    '#f43f5e',
+    'amber':   '#f59e0b',
+    'slate':   '#64748b',
+    'teal':    '#14b8a6'
+} %}
+
+{% set view_labels = {
+    'dashboard':  'Dashboard',
+    'tasks':      'All tasks',
+    'inprogress': 'In progress',
+    'calendar':   'Calendar'
+} %}
+
+{% set view_descriptions = {
+    'dashboard':  'Overview with recent tasks.',
+    'tasks':      'The full task list.',
+    'inprogress': 'Only open tasks.',
+    'calendar':   'Tasks on a monthly grid.'
+} %}
+
+{# Shared option-card styles. has-[:checked] handles the live state when the
+   user clicks; the radio's native behavior drives it via the peer input. #}
+{% set card_base = "relative block cursor-pointer rounded-lg border-2 bg-white p-4 shadow-sm motion-safe:transition-all motion-safe:duration-150 border-zinc-200 hover:border-zinc-300 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:border-zinc-700 has-[:checked]:border-accent has-[:checked]:bg-accent/[0.04] has-[:checked]:ring-2 has-[:checked]:ring-accent/20 dark:has-[:checked]:bg-accent/10" %}
+
+{% macro option_card(name, value, current, label, description, icon) %}
+  <label class="{{ card_base }}">
+    <input type="radio" name="{{ name }}" value="{{ value }}" class="peer sr-only" {{ 'checked' if current == value }}>
+
+    <div class="flex items-start gap-3">
+      <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-zinc-100 text-zinc-600 motion-safe:transition-colors peer-checked:bg-accent peer-checked:text-white dark:bg-zinc-800 dark:text-zinc-300">
+        {{ icon | safe }}
+      </span>
+      <div class="min-w-0">
+        <div class="text-sm font-medium">{{ label }}</div>
+        {% if description %}
+          <div class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{{ description }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <span class="pointer-events-none absolute right-3 top-3 hidden h-5 w-5 items-center justify-center rounded-full bg-accent text-white shadow-sm peer-checked:flex">
+      <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+  </label>
+{% endmacro %}
+
+{# Section icon shorthand — small inline SVGs. #}
+{% set ICON_SUN    %}<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap="round"/></svg>{% endset %}
+{% set ICON_MOON   %}<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endset %}
+{% set ICON_SYSTEM %}<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4" stroke-linecap="round"/></svg>{% endset %}
+{% set ICON_GRID   %}<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>{% endset %}
+{% set ICON_LIST   %}<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11" stroke-linecap="round"/><circle cx="4.5" cy="6" r="1.4"/><circle cx="4.5" cy="12" r="1.4"/><circle cx="4.5" cy="18" r="1.4"/></svg>{% endset %}
+{% set ICON_CLOCK  %}<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>{% endset %}
+{% set ICON_CAL    %}<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4" stroke-linecap="round"/></svg>{% endset %}
+
+{% set view_icons = {
+    'dashboard':  ICON_GRID,
+    'tasks':      ICON_LIST,
+    'inprogress': ICON_CLOCK,
+    'calendar':   ICON_CAL
+} %}
+
+{% block body %}
+<div class="mb-6">
+  <h1 class="page-title text-2xl font-bold tracking-tight">Settings</h1>
+  <p class="page-subtitle mt-1 text-sm text-zinc-500 dark:text-zinc-400">Customize how TaskFlow looks and behaves.</p>
+</div>
+
+<form method="POST" action="{{ url_for('settings_page') }}" class="mx-auto max-w-2xl">
+  <div class="stagger space-y-6">
+
+    {# ── Profile ────────────────────────────────────────────── #}
+    <section class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <h2 class="text-sm font-semibold">Profile</h2>
+      <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+        Signed in as <span class="font-medium text-zinc-700 dark:text-zinc-300">{{ current_user.username }}</span> &middot; {{ current_user.email }}
+      </p>
+
+      <div class="mt-5">
+        <label for="display_name" class="mb-1.5 block text-sm font-semibold">Display name</label>
+        <input type="text" id="display_name" name="display_name" maxlength="80"
+               value="{{ user_settings.display_name or '' }}"
+               placeholder="{{ current_user.username }}"
+               class="input max-w-sm" autocomplete="off">
+        <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+          Shown across the app. Defaults to your username if left blank.
+        </p>
+      </div>
+    </section>
+
+    {# ── Theme ──────────────────────────────────────────────── #}
+    <section class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <h2 class="text-sm font-semibold">Theme</h2>
+      <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Choose how TaskFlow looks. System follows your device setting.</p>
+
+      <div class="mt-4 grid gap-3 sm:grid-cols-3">
+        {{ option_card('theme', 'light',  user_settings.theme, 'Light',  'Always light mode.', ICON_SUN) }}
+        {{ option_card('theme', 'dark',   user_settings.theme, 'Dark',   'Always dark mode.',  ICON_MOON) }}
+        {{ option_card('theme', 'system', user_settings.theme, 'System', 'Match your device.', ICON_SYSTEM) }}
+      </div>
+    </section>
+
+    {# ── Accent color ───────────────────────────────────────── #}
+    <section class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <h2 class="text-sm font-semibold">Accent color</h2>
+      <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Used for buttons, links, and highlights throughout the app.</p>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        {% for a in accents %}
+          <label class="relative cursor-pointer">
+            <input type="radio" name="accent" value="{{ a }}" class="peer sr-only" {{ 'checked' if user_settings.accent == a }}>
+            <span class="block h-9 w-9 rounded-full motion-safe:transition-transform peer-checked:scale-110"
+                  style="background: {{ accent_hex[a] }}"
+                  aria-label="{{ a }}"></span>
+            <span class="pointer-events-none absolute -inset-1 hidden rounded-full ring-2 ring-zinc-900 ring-offset-2 ring-offset-white peer-checked:block dark:ring-zinc-100 dark:ring-offset-zinc-900"></span>
+            <span class="pointer-events-none absolute inset-0 hidden items-center justify-center peer-checked:flex">
+              <svg class="h-4 w-4 text-white drop-shadow" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="sr-only">{{ a }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </section>
+
+    {# ── Compact mode ───────────────────────────────────────── #}
+    <section class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <label class="flex cursor-pointer items-center justify-between gap-6">
+        <div class="min-w-0">
+          <div class="text-sm font-medium">Compact mode</div>
+          <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Reduce vertical density across task lists and the dashboard.</div>
+        </div>
+
+        <div class="relative inline-flex h-6 w-11 flex-shrink-0">
+          <input type="checkbox" name="compact_mode" class="peer sr-only" {{ 'checked' if user_settings.compact_mode }}>
+          <span class="block h-6 w-11 rounded-full bg-zinc-200 motion-safe:transition-colors peer-checked:bg-accent dark:bg-zinc-700"></span>
+          <span class="pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm motion-safe:transition-transform peer-checked:translate-x-5"></span>
+        </div>
+      </label>
+    </section>
+
+    {# ── Default view ───────────────────────────────────────── #}
+    <section class="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <h2 class="text-sm font-semibold">Default view</h2>
+      <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">The page you land on after signing in.</p>
+
+      <div class="mt-4 grid gap-3 grid-cols-2 sm:grid-cols-4">
+        {% for v in views %}
+          {{ option_card('default_view', v, user_settings.default_view,
+                         view_labels[v], view_descriptions[v], view_icons[v]) }}
+        {% endfor %}
+      </div>
+    </section>
+
+    {# ── Actions ────────────────────────────────────────────── #}
+    <div class="flex items-center justify-end gap-2">
+      <a href="{{ url_for('dashboard') }}"
+         class="rounded-md px-3 py-1.5 text-sm font-medium text-zinc-700 motion-safe:transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800">Cancel</a>
+      <button type="submit"
+              class="rounded-md bg-accent px-4 py-1.5 text-sm font-medium text-white shadow-sm motion-safe:transition-colors hover:bg-accent-hover">
+        Save changes
+      </button>
+    </div>
+  </div>
+</form>
+{% endblock %}

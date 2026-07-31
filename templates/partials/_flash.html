@@ -1,0 +1,11 @@
+{# Flashes are converted to toast notifications client-side. The hidden
+   divs below carry message + category to script.js, which surfaces them. #}
+{% with messages = get_flashed_messages(with_categories=True) %}
+  {% if messages %}
+    <div class="sr-only">
+      {% for category, message in messages %}
+        <div data-flash data-flash-type="{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}

@@ -1,0 +1,26 @@
+# Virtual environment
+env/
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Database — contains real user accounts and password hashes
+instance/
+*.db
+*.sqlite3
+
+# Secrets
+.env
+.env.*
+
+# Local editor / tooling config
+.claude/settings.local.json
+.vscode/
+.idea/
+
+# macOS
+.DS_Store

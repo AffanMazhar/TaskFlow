@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Calendar &middot; TaskFlow{% endblock %}
+
+{% block body %}
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h1 class="page-title text-2xl font-bold tracking-tight">{{ month_name }} {{ year }}</h1>
+    <p class="page-subtitle mt-1 text-sm text-zinc-500 dark:text-zinc-400">Tasks plotted by their due date.</p>
+  </div>
+  <div class="flex items-center gap-1">
+    <a href="{{ url_for('calendar', year=prev_year, month=prev_month) }}"
+       class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+       aria-label="Previous month">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="{{ url_for('calendar') }}"
+       class="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800">
+      Today
+    </a>
+    <a href="{{ url_for('calendar', year=next_year, month=next_month) }}"
+       class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+       aria-label="Next month">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</div>
+
+<div class="card p-3 sm:p-4">
+  <div class="cal-grid mb-1">
+    {% for day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] %}
+      <div class="cal-head text-center">{{ day }}</div>
+    {% endfor %}
+  </div>
+  <div class="cal-grid">
+    {% for cell in cells %}
+      {% if cell is none %}
+        <div class="cal-cell cal-cell-empty"></div>
+      {% else %}
+        <div class="cal-cell {{ 'cal-cell-today' if today_day == cell }}">
+          <div class="cal-day-num">{{ cell }}</div>
+          {% set day_tasks = tasks_by_day.get(cell, []) %}
+          {% for t in day_tasks[:3] %}
+            <a href="{{ url_for('task_detail', id=t.id) }}"
+               class="cal-pill" title="{{ t.content }}">
+              {{ t.content }}
+            </a>
+          {% endfor %}
+          {% if day_tasks|length > 3 %}
+            <span class="text-[0.65rem] font-semibold text-zinc-500 dark:text-zinc-400">+{{ day_tasks|length - 3 }} more</span>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+{% if not tasks_by_day %}
+  <p class="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+    No tasks with due dates this month. <a href="{{ url_for('new_task') }}" class="font-medium text-accent hover:underline">Add one</a>.
+  </p>
+{% endif %}
+{% endblock %}
