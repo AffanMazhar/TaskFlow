@@ -147,7 +147,7 @@ function Register({ go }) {
             </div>
             <div>
               <label className="tf-label">Email</label>
-              <input className="tf-input" type="email" placeholder="tessa@workmail.com" value={e} onChange={(ev) => setE(ev.target.value)} />
+              <input className="tf-input" type="email" placeholder="you@example.com" value={e} onChange={(ev) => setE(ev.target.value)} />
             </div>
             <div>
               <label className="tf-label">Password</label>

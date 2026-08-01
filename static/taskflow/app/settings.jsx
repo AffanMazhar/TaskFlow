@@ -1,8 +1,7 @@
 /* TaskFlow settings — profile, theme, accent, density, notifications. */
 
-function Settings({ accent, setAccent, name, setName, theme, setTheme }) {
-  const [compact, setCompact] = React.useState(false);
-  const [reduceMotion, setReduceMotion] = React.useState(false);
+function Settings({ accent, setAccent, name, setName, theme, setTheme,
+                    me, compact, setCompact, reduceMotion, setReduceMotion }) {
   const [quietHours, setQuietHours] = React.useState(true);
   const [emailDigest, setEmailDigest] = React.useState(false);
   const [defaultView, setDefaultView] = React.useState("dashboard");
@@ -66,7 +65,7 @@ function Settings({ accent, setAccent, name, setName, theme, setTheme }) {
             <SectionTitle title="Profile" sub="Your name as it appears across TaskFlow." />
             <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 22 }}>
               <div className="tf-avatar" style={{ width: 64, height: 64, fontSize: 22, boxShadow: "0 0 0 4px var(--bg-app), 0 0 0 5px rgba(139,92,246,0.4), 0 0 30px rgba(139,92,246,0.3)" }}>
-                {(name || "Tessa").slice(0, 2).toUpperCase()}
+                {((name || me?.username || "?").trim().slice(0, 2) || "?").toUpperCase()}
               </div>
               <div>
                 <MagneticButton className="tf-ghost" strength={0.25} style={{ padding: "8px 14px", fontSize: 12 }}>
@@ -78,11 +77,14 @@ function Settings({ accent, setAccent, name, setName, theme, setTheme }) {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <div>
                 <label className="tf-label">Display name</label>
-                <input className="tf-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tessa" />
+                <input className="tf-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
               </div>
               <div>
                 <label className="tf-label">Email</label>
-                <input className="tf-input" defaultValue="tessa@workmail.com" />
+                {/* The address this account was created with. Read-only —
+                    there's no change-email flow behind it. */}
+                <input className="tf-input" value={me?.email || ""} readOnly
+                  style={{ opacity: 0.75, cursor: "not-allowed" }} />
               </div>
             </div>
           </SpotlightCard>
@@ -208,10 +210,12 @@ function Settings({ accent, setAccent, name, setName, theme, setTheme }) {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               {[
                 ["Open command palette", "⌘ K"],
-                ["New task",             "N"],
-                ["Go to dashboard",      "G then D"],
-                ["Go to board",          "G then T"],
                 ["Search",               "/"],
+                ["New task",             "N"],
+                ["Go to dashboard",      "D"],
+                ["Go to board",          "T"],
+                ["Go to calendar",       "C"],
+                ["Go to settings",       "S"],
                 ["Toggle theme",         "⌘ ⇧ L"],
               ].map(([label, keys]) => (
                 <div key={label} style={{

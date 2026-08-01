@@ -14,10 +14,17 @@ function App() {
   const [tasks, setTasks] = React.useState([]);
   const [tasksLoaded, setTasksLoaded] = React.useState(false);
   const [cmdOpen, setCmdOpen] = React.useState(false);
-  const [name, setName] = React.useState("Tessa");
+  // Empty until /api/me resolves — the dashboard greets "there" meanwhile.
+  // A hardcoded default here greeted every new user by the wrong name.
+  const [name, setName] = React.useState("");
   const [accent, setAccent] = React.useState("indigo");
   const [theme, setTheme] = React.useState("dark"); // "dark" | "light" | "system"
   const [me, setMe] = React.useState(null);
+  // Display preferences. Kept in localStorage rather than the database: they
+  // describe this device (screen size, motion sensitivity), and adding a
+  // column would require a migration against the live database.
+  const [compact, setCompact] = React.useState(() => localStorage.getItem("tf-compact") === "1");
+  const [reduceMotion, setReduceMotion] = React.useState(() => localStorage.getItem("tf-reduce-motion") === "1");
 
   // apply theme to body so CSS variables can switch
   React.useEffect(() => {
@@ -26,6 +33,16 @@ function App() {
       : theme;
     document.body.setAttribute("data-theme", resolved);
   }, [theme]);
+
+  React.useEffect(() => {
+    document.body.setAttribute("data-compact", compact ? "true" : "false");
+    localStorage.setItem("tf-compact", compact ? "1" : "0");
+  }, [compact]);
+
+  React.useEffect(() => {
+    document.body.setAttribute("data-reduce-motion", reduceMotion ? "true" : "false");
+    localStorage.setItem("tf-reduce-motion", reduceMotion ? "1" : "0");
+  }, [reduceMotion]);
 
   // global ⌘⇧L: toggle theme
   React.useEffect(() => {
@@ -50,7 +67,9 @@ function App() {
         if (cancelled) return;
         setMe(profile);
         if (!profile.authenticated) return;
-        if (profile.display_name) setName(profile.display_name.split(" ")[0]);
+        // Fall back to the username so the greeting is still personal for
+        // accounts that never set a display name.
+        setName((profile.display_name || profile.username || "").split(" ")[0]);
         if (profile.accent) setAccent(profile.accent);
         if (profile.theme) setTheme(profile.theme);
         // Authenticated users never want the marketing landing — drop them
@@ -92,20 +111,50 @@ function App() {
     root.setProperty("--grad-accent-soft", `linear-gradient(135deg, ${a.colors[0]}33, ${a.colors[1]}33)`);
   }, [accent]);
 
-  // command palette: ⌘K
+  // Global shortcuts. Single keys rather than "G then D" chords — easier to
+  // remember and to implement correctly. Plain letters only fire inside the
+  // app chrome, and never while typing in a field.
   React.useEffect(() => {
     function onKey(e) {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      const key = e.key.toLowerCase();
+      const mod = e.metaKey || e.ctrlKey;
+
+      if (mod && key === "k") {
         e.preventDefault();
         setCmdOpen(o => !o);
-      } else if (e.key === "Escape") {
-        setCmdOpen(false);
-      } else if (e.key.toLowerCase() === "n" && !cmdOpen && SCREENS_WITH_CHROME.includes(screen) && !isTypingTarget(e.target)) {
-        // 'N' opens new task on tasks screen
+        return;
+      }
+      if (e.key === "Escape") { setCmdOpen(false); return; }
+
+      // Everything below is unmodified typing-adjacent input.
+      if (mod || e.altKey || cmdOpen) return;
+      if (!SCREENS_WITH_CHROME.includes(screen)) return;
+      if (isTypingTarget(e.target)) return;
+      // A dialog is open (task editor, confirm) — navigating away from it
+      // would silently discard whatever the user was doing.
+      if (document.querySelector(".tf-cmd-backdrop")) return;
+
+      if (key === "/") {
+        // The search control opens the palette, so "/" does too.
+        e.preventDefault();
+        setCmdOpen(true);
+      } else if (key === "n") {
+        // Works from any app screen, not just the board.
+        e.preventDefault();
         if (screen === "tasks") {
-          e.preventDefault();
           window.dispatchEvent(new CustomEvent("tf-new-task"));
+        } else {
+          go("tasks");
+          setTimeout(() => window.dispatchEvent(new CustomEvent("tf-new-task")), 250);
         }
+      } else if (key === "d") {
+        e.preventDefault(); go("dashboard");
+      } else if (key === "t") {
+        e.preventDefault(); go("tasks");
+      } else if (key === "c") {
+        e.preventDefault(); go("calendar");
+      } else if (key === "s") {
+        e.preventDefault(); go("settings");
       }
     }
     window.addEventListener("keydown", onKey);
@@ -127,19 +176,20 @@ function App() {
   return (
     <>
       <AnimatedBackground kind={tweaks.bg} />
-      {(screen === "landing" || screen === "onboarding") && tweaks.motion !== "off" && (
+      {(screen === "landing" || screen === "onboarding") && tweaks.motion !== "off" && !reduceMotion && (
         <CursorGlow enabled />
       )}
 
       {hasChrome ? (
         <div className="tf-app">
-          <Sidebar screen={screen} go={go} openCmd={() => setCmdOpen(true)} />
+          <Sidebar screen={screen} go={go} openCmd={() => setCmdOpen(true)} me={me} name={name} />
           <main className="tf-main">
             {screen === "dashboard" && <Dashboard go={go} tasks={tasks} name={name} openCmd={() => setCmdOpen(true)} />}
             {(screen === "tasks" || screen === "all-tasks" || screen === "today" || screen === "inbox") &&
               <Tasks tasks={tasks} setTasks={setTasks} view={TASK_VIEWS[screen]} openCmd={() => setCmdOpen(true)} />}
             {screen === "calendar" && <Calendar tasks={tasks} go={go} />}
-            {screen === "settings" && <Settings accent={accent} setAccent={setAccent} name={name} setName={setName} theme={theme} setTheme={setTheme} />}
+            {screen === "settings" && <Settings accent={accent} setAccent={setAccent} name={name} setName={setName} theme={theme} setTheme={setTheme}
+              me={me} compact={compact} setCompact={setCompact} reduceMotion={reduceMotion} setReduceMotion={setReduceMotion} />}
           </main>
         </div>
       ) : (
@@ -219,7 +269,12 @@ function isTypingTarget(el) {
 }
 
 /* Sidebar — left rail of the app chrome */
-function Sidebar({ screen, go, openCmd }) {
+function Sidebar({ screen, go, openCmd, me, name }) {
+  // Real account details rather than placeholder text. Falls back gracefully
+  // while /api/me is still in flight.
+  const label = me?.display_name || name || me?.username || "Your account";
+  const initials = (label.trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2) || "?").toUpperCase();
+
   const groups = [
     {
       label: "Workspace",
@@ -305,10 +360,12 @@ function Sidebar({ screen, go, openCmd }) {
         border: "1px solid var(--line-1)",
         display: "flex", alignItems: "center", gap: 10,
       }}>
-        <div className="tf-avatar" style={{ width: 28, height: 28, fontSize: 11 }}>TS</div>
+        <div className="tf-avatar" style={{ width: 28, height: 28, fontSize: 11 }}>{initials}</div>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Tessa Sato</div>
-          <div style={{ fontSize: 10, color: "var(--fg-4)" }}>Personal plan</div>
+          <div style={{ fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
+          <div style={{ fontSize: 10, color: "var(--fg-4)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {me?.email || ""}
+          </div>
         </div>
       </div>
     </aside>
@@ -326,9 +383,10 @@ function CommandPalette({ go, close, tasks }) {
   }, []);
 
   const baseCommands = [
-    { id: "go-dashboard", label: "Go to dashboard", icon: "dashboard", kbd: "G D", run: () => go("dashboard") },
-    { id: "go-tasks",     label: "Go to board",     icon: "layers",    kbd: "G T", run: () => go("tasks") },
-    { id: "go-settings",  label: "Go to settings",  icon: "cog",       kbd: "G S", run: () => go("settings") },
+    { id: "go-dashboard", label: "Go to dashboard", icon: "dashboard", kbd: "D", run: () => go("dashboard") },
+    { id: "go-tasks",     label: "Go to board",     icon: "layers",    kbd: "T", run: () => go("tasks") },
+    { id: "go-calendar",  label: "Go to calendar",  icon: "calendar",  kbd: "C", run: () => go("calendar") },
+    { id: "go-settings",  label: "Go to settings",  icon: "cog",       kbd: "S", run: () => go("settings") },
     { id: "new-task",     label: "Create new task", icon: "plus",      kbd: "N",   run: () => { go("tasks"); setTimeout(() => window.dispatchEvent(new CustomEvent("tf-new-task")), 250); } },
     { id: "go-landing",   label: "Open landing page", icon: "arrowRight", run: () => go("landing") },
     { id: "sign-out",     label: "Sign out",        icon: "user",      run: async () => {

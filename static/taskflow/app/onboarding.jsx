@@ -68,7 +68,7 @@ function StepWelcome({ name, setName }) {
       <label className="tf-label">What should we call you?</label>
       <input
         className="tf-input"
-        placeholder="Tessa"
+        placeholder="Your name"
         value={name}
         onChange={(e) => setName(e.target.value)}
         autoFocus
@@ -230,7 +230,7 @@ function StepReady({ name, intent, accent }) {
 
       <div style={{ display: "grid", gap: 10, maxWidth: 480 }}>
         {[
-          { label: "Display name",    value: name || "Tessa" },
+          { label: "Display name",    value: name || "Not set" },
           { label: "Workflow mode",   value: intentLabel },
           { label: "Accent",          value: accent.charAt(0).toUpperCase() + accent.slice(1) },
         ].map((r) => (

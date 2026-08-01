@@ -410,6 +410,34 @@ body[data-theme="light"] .tf-select { color-scheme: light; }
   }
 }
 
+/* Settings → Reduce motion. Same treatment as the media query above, but
+   driven by the toggle. Also stops the ambient background animation. */
+body[data-reduce-motion="true"] *,
+body[data-reduce-motion="true"] *::before,
+body[data-reduce-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+body[data-reduce-motion="true"] .tf-side__item:hover,
+body[data-reduce-motion="true"] .tf-feature:hover,
+body[data-reduce-motion="true"] .tf-kcard:hover,
+body[data-reduce-motion="true"] .tf-swatch:hover {
+  transform: none !important;
+}
+
+/* Settings → Compact mode. Tightens the vertical rhythm without changing
+   the layout. Each selector below has a verified base rule to override. */
+body[data-compact="true"] .tf-main     { padding: 16px 24px 48px; }
+body[data-compact="true"] .tf-topbar   { margin-bottom: 16px; }
+body[data-compact="true"] .tf-stat     { padding: 14px; }
+body[data-compact="true"] .tf-set-card { padding: 16px; }
+body[data-compact="true"] .tf-kcard    { padding: 9px 12px; }
+body[data-compact="true"] .tf-kcol     { padding: 10px; gap: 6px; }
+body[data-compact="true"] .tf-side__item  { padding: 5px 10px; font-size: 13px; }
+body[data-compact="true"] .tf-side__group { padding: 9px 10px 5px; }
+
 /* ============= LANDING ============= */
 .tf-nav {
   position: fixed;
@@ -702,6 +730,9 @@ body[data-theme="light"] .tf-select { color-scheme: light; }
   flex-direction: column;
   gap: 6px;
 }
+/* The dark rail tint reads as a gray wash over a light background. */
+body[data-theme="light"] .tf-side { background: rgba(255,255,255,0.62); }
+body[data-theme="light"] .tf-side__item:hover { background: rgba(15,15,30,0.05); }
 .tf-side__brand { display: flex; align-items: center; gap: 10px; padding: 6px 8px 18px; font-weight: 600; font-size: 15px; border-bottom: 1px solid var(--line-1); margin-bottom: 12px; }
 .tf-side__group { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-4); padding: 14px 10px 8px; }
 .tf-side__item {

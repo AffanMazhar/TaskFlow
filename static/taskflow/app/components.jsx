@@ -73,6 +73,11 @@ function MagneticButton({ children, strength = 0.35, radius = 100, className = "
   function move(e) {
     const el = ref.current;
     if (!el) return;
+    // The magnetic pull is a JS transform, so CSS can't switch it off.
+    if (document.body.dataset.reduceMotion === "true") {
+      el.style.transform = "translate3d(0,0,0)";
+      return;
+    }
     const r = el.getBoundingClientRect();
     const cx = r.left + r.width / 2;
     const cy = r.top + r.height / 2;
