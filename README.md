@@ -1,182 +1,118 @@
 # TaskFlow
 
-A polished personal-productivity web app built with Flask. Plan your day, organize tasks by category, track daily completion streaks, and keep momentum with a dashboard that feels like a real product — not a school project.
-
-> Built with Flask 3 + SQLAlchemy + Tailwind CSS · no build step required.
+A personal productivity web app built with Flask. Organize tasks by category and
+priority, track daily completion streaks, and review your week on a calendar.
 
 ---
 
 ## Features
 
-- **Accounts** — Username/email/password register & login, sessions, password hashing
-- **Tasks** — Title, notes, category, priority, due date, completion toggle
-- **Categories** — Personal, Work, School, Fitness, Urgent (color-coded chips)
-- **Priorities** — Low / Medium / High
-- **Dashboard** — Personalized greeting, stats (total/in-progress/completed/overdue), daily progress bar, motivational quote
-- **Streaks** — Counts consecutive days you completed at least one task
-- **Search & filter** — by text, category, priority, and status
-- **Calendar view** — Month grid showing tasks on their due dates
-- **Settings** — Display name, theme (light / dark / system), accent color (8 options), default landing page, compact mode
-- **Modern UI** — Inter font, soft gradients, hover lifts, staggered list entrance, page fade-in, toast notifications, custom delete confirmation modal, animated checkboxes
-- **Responsive** — works on mobile, tablet, and desktop
-- **Dark & light mode** — applied before paint to prevent flashes
+- **Accounts** — Registration and sign-in with hashed passwords and server-side sessions
+- **Tasks** — Title, notes, category, priority, due date, and completion state
+- **Views** — Dashboard, board, calendar, and filtered lists for today and inbox
+- **Streaks** — Tracks consecutive days with at least one completed task
+- **Search** — Filter by text, category, priority, and status
+- **Command palette** — Keyboard-driven navigation and task creation
+- **Appearance** — Light, dark, and system themes; six accent colors; compact mode and reduced motion
+
+## Tech stack
+
+| Layer    | Technology                                  |
+| -------- | ------------------------------------------- |
+| Backend  | Flask 3, Flask-SQLAlchemy, Werkzeug         |
+| Frontend | React 18 (loaded from CDN, compiled in-browser), custom CSS |
+| Database | SQLite for local development, PostgreSQL in production |
+| Server   | Gunicorn                                    |
+
+No build step or Node toolchain is required.
 
 ---
 
-## Quick start
+## Getting started
 
-### 1. Make sure Python 3.9+ is installed
-
-```bash
-python3 --version
-```
-
-### 2. Clone the repo, then create & activate a virtual environment
+Requires Python 3.9 or newer.
 
 ```bash
 git clone https://github.com/AffanMazhar/TaskFlow.git
 cd TaskFlow
 
-# macOS / Linux
 python3 -m venv env
-source env/bin/activate
+source env/bin/activate        # Windows: .\env\Scripts\Activate.ps1
 
-# Windows (PowerShell)
-python -m venv env
-.\env\Scripts\Activate.ps1
-```
-
-### 3. Install dependencies
-
-```bash
 pip install -r requirements.txt
-```
-
-### 4. Run the app
-
-```bash
 python app.py
 ```
 
-The server will start at **<http://127.0.0.1:5004>**.
+Open <http://127.0.0.1:5004> and create an account.
 
-> The database file (`instance/database.db`) is created automatically on first launch. Schema upgrades to existing databases are applied automatically (new columns are added without losing data).
+The SQLite database is created automatically at `instance/database.db` on first
+launch. New columns are added to existing databases without data loss. To start
+over, delete the file and restart the app.
 
-### 5. Sign up & start using it
-
-1. Open <http://127.0.0.1:5004> in your browser.
-2. Click **Create an account** and register.
-3. You're in — start adding tasks!
+To run on a different port, set `PORT=5005 python app.py`.
 
 ---
 
-## Troubleshooting
+## Configuration
 
-### "Address already in use" / port 5004 busy
+All configuration is read from environment variables.
 
-Another process is using port 5004. Either stop that process, or run on a
-different port:
+| Variable       | Default                  | Purpose                                                |
+| -------------- | ------------------------ | ------------------------------------------------------ |
+| `SECRET_KEY`   | Development fallback     | Signs session cookies. Required in production.         |
+| `DATABASE_URL` | `sqlite:///database.db`  | Database connection string.                            |
+| `PORT`         | `5004`                   | Local development port.                                |
 
-```bash
-PORT=5005 python app.py
-```
+### Email
 
-### `ModuleNotFoundError: No module named 'flask'`
+Verification and password-reset messages are written to the server log unless
+SMTP credentials are configured:
 
-The virtual environment isn't activated, or dependencies weren't installed. Re-run:
-
-```bash
-source env/bin/activate     # macOS/Linux
-pip install -r requirements.txt
-```
-
-### Page won't load styles or JavaScript
-
-Hard-refresh the browser (Cmd/Ctrl + Shift + R). TaskFlow loads Tailwind from a CDN, so an internet connection is required on first load.
-
-### Resetting the database
-
-If you want to wipe all data and start fresh, delete `instance/database.db`. A new empty database will be created the next time you launch the app.
+| Variable        | Notes                          |
+| --------------- | ------------------------------ |
+| `SMTP_HOST`     | Required to send mail          |
+| `SMTP_PORT`     | Defaults to `587`              |
+| `SMTP_USER`     | Required to send mail          |
+| `SMTP_PASSWORD` | Required to send mail          |
+| `SMTP_FROM`     | Defaults to `SMTP_USER`        |
+| `SMTP_USE_TLS`  | Defaults to `1` (STARTTLS)     |
 
 ---
 
-## Deploying
+## Deployment
 
-The repo ships with `render.yaml`, so [Render](https://render.com) picks up the
-config automatically:
+The repository includes `render.yaml`, which [Render](https://render.com) reads
+automatically:
 
-1. Sign in to Render with GitHub → **New → Blueprint**
-2. Pick this repository — it reads `render.yaml` and fills everything in
-3. **Apply**, then wait for the first build
+1. Sign in with GitHub and choose **New → Blueprint**
+2. Select this repository and click **Apply**
 
-`SECRET_KEY` is generated by Render on first deploy. SQLite lives on a mounted
-disk at `instance/`, so data survives redeploys.
-
-### Email in production
-
-Without SMTP credentials, verification and password-reset emails are printed to
-the server log instead of sent. To send for real, add these in the Render
-dashboard under **Environment**:
-
-```
-SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
-SMTP_FROM     (optional — defaults to SMTP_USER)
-SMTP_USE_TLS  (optional — default "1", STARTTLS)
-```
-
-### Environment variables
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `SECRET_KEY` | dev-only fallback | Signs session cookies. **Must** be set in production. |
-| `DATABASE_URL` | `sqlite:///database.db` | Point at Postgres if you outgrow SQLite (also needs `psycopg2-binary`). |
-| `PORT` | `5004` | Local dev port. |
-
-> Note: OAuth callback URLs are registered per-domain. If you use Google or
-> GitHub sign-in, add the live domain in each provider's console.
+This provisions a web service running Gunicorn and a PostgreSQL database, and
+generates `SECRET_KEY` on the first deploy. Subsequent pushes to `main` deploy
+automatically.
 
 ---
 
 ## Project structure
 
 ```
-My_Flask_App/
-├── app.py                     # Flask app, models, routes, schema migration
-├── requirements.txt           # Python dependencies (Flask, Flask-SQLAlchemy)
-├── README.md
-├── instance/
-│   └── database.db            # SQLite (auto-created)
+.
+├── app.py                  Application, models, routes, and schema migration
+├── requirements.txt        Python dependencies
+├── render.yaml             Deployment configuration
+├── instance/               SQLite database (git-ignored)
 ├── static/
-│   ├── css/style.css          # Design tokens, animations, components
-│   └── js/script.js           # Theme, sidebar, toasts, delete modal, micro-animations
-└── templates/
-    ├── base.html              # Global layout (sidebar + main, public auth shell)
-    ├── login.html
-    ├── register.html
-    ├── dashboard.html         # Greeting, stats, quote, streak, recent tasks
-    ├── tasks.html             # List + search/filter
-    ├── task_form.html         # Create / edit task
-    ├── task_detail.html
-    ├── calendar.html          # Monthly grid view
-    ├── settings.html          # Theme / accent / username / default view
-    ├── 404.html
-    └── partials/
-        ├── _flash.html        # Flash messages → toasts
-        ├── _quick_add.html    # One-line add task form
-        ├── _sidebar.html      # Nav with categories
-        └── _task_card.html    # Reusable task row
+│   └── taskflow/           Single-page React interface
+│       ├── TaskFlow.html   Entry point
+│       └── app/            Components, styles, and API client
+└── templates/              Legacy server-rendered views
 ```
 
----
-
-## Tech stack
-
-- **Backend** — Flask 3, Flask-SQLAlchemy, SQLite, Werkzeug (password hashing)
-- **Frontend** — Tailwind CSS (CDN), Inter font, vanilla JS, custom CSS for animations & components
-- **Storage** — SQLite (file-based, zero config)
+The application serves the React interface in `static/taskflow/`. The Jinja
+templates predate it and are retained for reference.
 
 ---
 
 ## License
 
-MIT — feel free to fork it, learn from it, and put it on your resume.
+MIT
