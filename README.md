@@ -3,6 +3,11 @@
 A personal productivity web app built with Flask. Organize tasks by category and
 priority, track daily completion streaks, and review your week on a calendar.
 
+**[Live demo →](https://taskflow-55tx.onrender.com/)**
+
+> Hosted on a free tier that sleeps when idle, so the first request may take
+> around 30 seconds to wake the server.
+
 ---
 
 ## Features
