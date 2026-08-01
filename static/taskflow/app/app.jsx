@@ -135,9 +135,6 @@ function App() {
         <div className="tf-app">
           <Sidebar screen={screen} go={go} openCmd={() => setCmdOpen(true)} />
           <main className="tf-main">
-            {me && me.authenticated && me.email_verified === false && (
-              <VerifyBanner email={me.email} onResent={() => setMe(m => ({ ...m, _resent: true }))} resent={me._resent} />
-            )}
             {screen === "dashboard" && <Dashboard go={go} tasks={tasks} name={name} openCmd={() => setCmdOpen(true)} />}
             {(screen === "tasks" || screen === "all-tasks" || screen === "today" || screen === "inbox") &&
               <Tasks tasks={tasks} setTasks={setTasks} view={TASK_VIEWS[screen]} openCmd={() => setCmdOpen(true)} />}
@@ -407,40 +404,4 @@ function CommandPalette({ go, close, tasks }) {
   );
 }
 
-function VerifyBanner({ email, onResent, resent }) {
-  const [sending, setSending] = React.useState(false);
-  async function resend() {
-    setSending(true);
-    try { await window.api.resendVerification(); onResent(); } catch (_) {}
-    setSending(false);
-  }
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 12,
-      padding: "10px 16px", marginBottom: 16,
-      background: "linear-gradient(135deg, rgba(251,191,36,0.10), rgba(251,113,133,0.08))",
-      border: "1px solid rgba(251,191,36,0.30)",
-      borderRadius: 10,
-      fontSize: 13,
-    }}>
-      <Icon name="bell" size={14} style={{ color: "var(--warning)", flexShrink: 0 }} />
-      <span style={{ color: "var(--fg-2)" }}>
-        We sent a confirmation link to <strong style={{ color: "var(--fg-1)" }}>{email}</strong>. Open it to verify this address.
-      </span>
-      <span style={{ flex: 1 }} />
-      {resent ? (
-        <span style={{ fontSize: 12, color: "var(--success)" }}>Email sent.</span>
-      ) : (
-        <button onClick={resend} disabled={sending} style={{
-          fontSize: 12, fontWeight: 500, color: "var(--acc-2)",
-          padding: "6px 12px", borderRadius: 999,
-          border: "1px solid var(--line-2)",
-          background: "rgba(255,255,255,0.04)",
-          opacity: sending ? 0.6 : 1,
-        }}>{sending ? "Sending…" : "Resend email"}</button>
-      )}
-    </div>
-  );
-}
-
-Object.assign(window, { App, Sidebar, CommandPalette, VerifyBanner });
+Object.assign(window, { App, Sidebar, CommandPalette });

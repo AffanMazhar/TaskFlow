@@ -371,12 +371,46 @@ function EmptyColumn() {
   );
 }
 
+/* Half-hour slots from 12:00 AM to 11:30 PM, e.g. "4:00 PM". */
+const TIME_OPTIONS = (() => {
+  const out = [];
+  for (let h = 0; h < 24; h++) {
+    for (const m of [0, 30]) {
+      const suffix = h < 12 ? "AM" : "PM";
+      const hour12 = h % 12 === 0 ? 12 : h % 12;
+      out.push(`${hour12}:${String(m).padStart(2, "0")} ${suffix}`);
+    }
+  }
+  return out;
+})();
+
+/* `due` is stored as one free-text label ("Today, 4:00 PM"). Split it back
+   into day and time so editing an existing task repopulates both controls.
+   Only a trailing segment that matches a real time slot counts as the time —
+   otherwise the whole string is the day ("Next week", "Fri, the 3rd"). */
+function splitDue(value) {
+  const s = (value || "").trim();
+  if (!s) return { day: "", time: "" };
+  const i = s.lastIndexOf(",");
+  if (i === -1) return { day: s, time: "" };
+  const tail = s.slice(i + 1).trim();
+  return TIME_OPTIONS.includes(tail)
+    ? { day: s.slice(0, i).trim(), time: tail }
+    : { day: s, time: "" };
+}
+
+function joinDue(day, time) {
+  return [day.trim(), time].filter(Boolean).join(", ");
+}
+
 function TaskModal({ task, onSave, onClose }) {
+  const initialDue = splitDue(task?.due ?? "Today");
   const [content, setContent] = React.useState(task?.content || "");
   const [description, setDescription] = React.useState(task?.description || "");
   const [category, setCategory] = React.useState(task?.category || "Personal");
   const [priority, setPriority] = React.useState(task?.priority || "medium");
-  const [due, setDue] = React.useState(task?.due || "Today");
+  const [dueDay, setDueDay] = React.useState(initialDue.day);
+  const [dueTime, setDueTime] = React.useState(initialDue.time);
 
   React.useEffect(() => {
     function onKey(e) {
@@ -392,7 +426,7 @@ function TaskModal({ task, onSave, onClose }) {
     onSave({
       ...(task || {}),
       content: content.trim(), description: description.trim(),
-      category, priority, due,
+      category, priority, due: joinDue(dueDay, dueTime),
       status: task?.status || "todo",
     });
   }
@@ -481,9 +515,18 @@ function TaskModal({ task, onSave, onClose }) {
             </div>
           </div>
 
-          <div>
-            <label className="tf-label">Due</label>
-            <input className="tf-input" value={due} onChange={(e) => setDue(e.target.value)} placeholder="Today, 4:00 PM" />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: 10 }}>
+            <div>
+              <label className="tf-label">Due</label>
+              <input className="tf-input" value={dueDay} onChange={(e) => setDueDay(e.target.value)} placeholder="Today" />
+            </div>
+            <div>
+              <label className="tf-label">Time</label>
+              <select className="tf-input tf-select" value={dueTime} onChange={(e) => setDueTime(e.target.value)}>
+                <option value="">No time</option>
+                {TIME_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
           </div>
         </div>
 
